@@ -132,23 +132,33 @@ source for how the screen is invoked.
 `reference/` (gitignored, not tracked) holds two shallow clones of the game's real
 developer source, https://gitlab.com/kevinsmartstfg/girl-life:
 
+- **`reference/0.9.8.3/`** — checked out at tag `0.9.8.3`, matching the `.qsp`
+  installed in the `Girl Life` (stable) game folder (`Girl Life 0.9.8.3.qsp`), which
+  is the only build this mod actually ships for and installs into.
+  **This is the primary and default reference for all lookups going forward** —
+  grep here first, and treat a symbol as usable only if it's actually here.
+  This repo is named GLQS *Stable* specifically because an earlier version of
+  this guidance said to default to nightly instead, and that caused real,
+  hard-to-diagnose bugs (fixed in commit `7950f1a`): nightly-only symbols like
+  `CloMaxStrength`/`CoatMaxStrength` and a nightly-only `get_total` function
+  were used because they existed in nightly's source, don't exist on stable
+  0.9.8.3, and silently read as 0/empty at runtime instead of erroring —
+  `qsp-cli` only checks syntax, so this shipped clean and only surfaced as
+  in-game bugs (items granted worn, blank tattoo-picker images, phantom
+  "Misc" category items) after release. Don't repeat that mistake.
 - **`reference/nightly/`** — `master` branch HEAD, matching the `Dev Life` folder's
   newer nightly build (its filename embeds the exact commit hash it was built from,
   e.g. `dev_glife-...-<hash>.qsp` — confirm `git -C reference/nightly log -1
   --format=%H` still equals that hash before trusting a lookup for Dev-Life-only
   behavior; `master` moves fast so this drifts and needs a re-clone periodically).
-  **This is the primary and default reference for all lookups going forward** —
-  grep here first and only, unless a task is specifically and only about the
-  stable `Girl Life` build.
-- **`reference/0.9.8.3/`** — checked out at tag `0.9.8.3`, matching the `.qsp`
-  installed in the `Girl Life` (stable) game folder (`Girl Life 0.9.8.3.qsp`). Kept
-  on disk but no longer checked by default — the two builds have diverged in real,
-  substantive ways in places (e.g. an archetype-system rewrite affecting
-  `BimboCloth`/`CalcAppearance`, and character creation being restructured
-  entirely from `intro_sg_select`/`intro_city_select` into
-  `intro_character_creation` on nightly), so do not assume a lookup here still
-  matches nightly. Only consult this if a task is explicitly about stable-only
-  behavior.
+  Kept on disk for background/context only (e.g. understanding upstream design
+  direction) — the two builds have diverged in real, substantive ways in places
+  (e.g. an archetype-system rewrite affecting `BimboCloth`/`CalcAppearance`, and
+  character creation being restructured entirely from
+  `intro_sg_select`/`intro_city_select` into `intro_character_creation` on
+  nightly). Never use a nightly-only symbol in `src/` just because it's the
+  only place you found it — if it's not in `reference/0.9.8.3/`, it doesn't
+  exist at runtime for this mod, full stop.
 
 This replaced an earlier approach of decompiling the installed `.qsp` with
 `qsp-cli` into one flat `glife_dev_build.qsps` file — the real source here is much
@@ -156,13 +166,15 @@ better organized (one `.qsrc` file per location/system under `locations/`, origi
 comments intact) and doesn't need re-decompiling by hand.
 
 **Before assuming a variable name, array name, or subsystem exists, grep
-`reference/nightly/` first** — most of the bug-fix version bumps in
-`02_readme.qsps`'s changelog (grades, attributes, consumables) were guessed
-variable names that turned out wrong. Confirming against the real source before
-writing a `src/` fragment avoids that cycle. E.g. `grep -rn "pav_.*_contribution"
-reference/nightly/locations/fame.qsrc` to check the fame-spread system, `cat
-reference/nightly/locations/homes_properties.qsrc` for the property system, or
-search for an item's in-game display string across `reference/nightly/locations/*.qsrc`
+`reference/0.9.8.3/` first** — most of the bug-fix version bumps in
+`02_readme.qsps`'s changelog (grades, attributes, consumables, durability,
+tattoo/piercing pickers) were either guessed variable names that turned out
+wrong, or names that only existed in nightly and silently no-opped on stable.
+Confirming against the stable source before writing a `src/` fragment avoids
+both cycles. E.g. `grep -rn "pav_.*_contribution"
+reference/0.9.8.3/locations/fame.qsrc` to check the fame-spread system, `cat
+reference/0.9.8.3/locations/homes_properties.qsrc` for the property system, or
+search for an item's in-game display string across `reference/0.9.8.3/locations/*.qsrc`
 to find its `mc_inventory[...]` key.
 
 To refresh either clone if a lookup seems stale or the installed builds update:

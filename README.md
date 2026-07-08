@@ -29,7 +29,7 @@ normal play.)
 
 GLQS is distributed as a single, ready-to-use file, `GLQS.qsp`:
 
-1. Go to the **[GLQS Releases page](https://github.com/xBandaku/GLQS/releases/latest)**.
+1. Go to the **[GLQS Releases page](https://github.com/xBandaku/GLQS_Stable_Project/releases/latest)**.
 2. The release at the top is always the newest version.
 3. Under **Assets**, download **`GLQS.qsp`**.
    - The page will also list "Source code (zip)" and "Source code (tar.gz)" -
@@ -76,7 +76,7 @@ actually use it until you register it once from inside the game:
    no restart needed.
 
 > **About the version number shown:** the Mods list displays GLQS's version
-> as **"0.34 fix 1"** rather than "0.34.1" - that's just the base game's own
+> as **"0.34 fix 4"** rather than "0.34.4" - that's just the base game's own
 > display format for mod version numbers (major.minor "fix" patch). It's the
 > same version, not a mismatch.
 
@@ -126,7 +126,7 @@ game, instead of being installed as a mod through the Mods tab. Follow the
 installation and enabling steps above instead.
 
 **Where can I see what's new in the latest version?**
-Check the [Releases page](https://github.com/xBandaku/GLQS/releases) on
+Check the [Releases page](https://github.com/xBandaku/GLQS_Stable_Project/releases) on
 GitHub for the full changelog, or, in-game, click the small info icon next to
 GLQS's entry in your installed mods list.
 

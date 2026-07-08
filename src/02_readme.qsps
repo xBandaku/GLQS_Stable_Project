@@ -1,6 +1,17 @@
 # mod_GLQS_readme
 *clr & cla
-'<b>Version 0.34.1 - Current</b>'
+'<b>Version 0.34.4 (stable) - Current</b>'
+'- Fixed: The Misc clothing category (Give Everything, Buy By Store, and the per-item picker) granted a wall of blank, unlabeled clothing slots - as many as whatever category happened to run right before it internally. Root cause: this category was keyed to an array named misc, but the base game only ever defines images and descriptions for a differently-named misc_outfits array (which holds exactly one scripted item, not a real shop line) and has no official item count for misc at all, so the count silently carried over from the previous category in the buy-out list instead of stopping at zero. The broken Misc category has been removed entirely - there was never a real shop behind it to buy out.'
+*nl
+'<b>Version 0.34.3</b>'
+'- Fixed: Tattoo and piercing design pickers showed no images at all (or the wrong count) on the stable Girl Life 0.9.8.3 build. Root cause: the design count came from a get_total function that only exists on the newer Dev Life nightly build; stable only exposes a totals gosub that returns its value a different way, so the nightly-only call silently read a stale leftover number on stable, most often 0. Now reads the count through the convention both builds actually support.'
+'- Fixed: A handful of specific clothing, bra and panty items (e.g. 2 Danilovich outfits, 1 Pussy-Cats dress, 3 G&M bras, 4 G&M panties) granted by this mod showed up as blank/broken images in the wardrobe on stable 0.9.8.3. These are dead slots the base games own shop already hides from players for exactly this reason - no real image exists behind them on stable - but this mods bulk-grant and single-item-pick options were granting every index blindly instead of respecting that exclusion list. Now skipped, matching what the base game itself already does.'
+'- Changed: Internal consistency cleanup - shoe/bra/panty/bodysuit durability now goes through the same explicit fallback pattern as the clothing/coat fix in 0.34.2, instead of silently relying on an undefined nightly-only variable defaulting to 0. No player-visible change (stable has no durability tracking for these categories at all, so the value was already effectively 0).'
+*nl
+'<b>Version 0.34.2</b>'
+'- Fixed: Every clothing and coat item granted by this mod (Give Everything, Buy All, per-category Give All, and single-item picks) was worn out on the stable Girl Life 0.9.8.3 build - usable and repairable, but instantly flagged as worn and needing a tailor. Root cause: durability was set from CloMaxStrength/CoatMaxStrength, variables the newer Dev Life nightly build computes but that do not exist at all on stable 0.9.8.3, so they silently read as 0 there. Now falls back to the same category-based formula stable itself uses when granting a purchase, so items come in undamaged on both builds. Shoes, bras, panties and bodysuits were not affected - stable 0.9.8.3 has no durability tracking for those categories at all.'
+*nl
+'<b>Version 0.34.1</b>'
 '- Changed: Quick Setup link no longer shows on the wardrobe screen or the shared clothing_view browsing/buying screen every store routes through - purely cosmetic, so it does not clutter these image-heavy screens. Nothing else depends on the link being present there.'
 *nl
 '<b>Version 0.34</b>'

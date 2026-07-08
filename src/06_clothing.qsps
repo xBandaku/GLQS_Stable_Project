@@ -50,7 +50,6 @@ if $ARGS[0] = 'store_menu':
 	act 'Scandalicious': gt 'mod_GLQS_main', 'store_detail', 'scandalicious'
 	act 'Eroto (Sex Shop)': gt 'mod_GLQS_main', 'store_detail', 'eroto'
 	act 'Lusso (underwear only)': gt 'mod_GLQS_main', 'store_detail', 'lusso'
-	act 'Misc': gt 'mod_GLQS_main', 'store_detail', 'misc'
 
 	act 'Return': gt 'mod_GLQS_main', 'clothing_menu'
 	act 'Return to Top Menu': gt 'mod_GLQS_main', 'start'
@@ -147,7 +146,15 @@ if $ARGS[0] = 'clothing_cat_build':
 	$glqs_cc[glqs_cc_n] = 'lusso|bra|lusso' & glqs_cc_n += 1
 	$glqs_cc[glqs_cc_n] = 'lusso|panty|lusso' & glqs_cc_n += 1
 	$glqs_cc[glqs_cc_n] = 'lusso|body|lusso' & glqs_cc_n += 1
-	$glqs_cc[glqs_cc_n] = 'misc|clo|misc' & glqs_cc_n += 1
+	!! Deliberately no misc entry here. The base games clothing totals
+	!! gosub has no branch for a misc category at all - the real array is
+	!! misc_outfits, holding exactly one scripted item (a hessian sack),
+	!! not a shop stock with a real count. A misc entry here previously
+	!! called totals with a key that gosub does not recognize, so total
+	!! stayed at whatever the prior category in this list left it at,
+	!! granting that many phantom items into a misc array that has no
+	!! image or description support anywhere in the game - shown in the
+	!! wardrobe as blank rows with no way to identify them.
 	glqs_cc_total = glqs_cc_n
 	killvar 'glqs_cc_n'
 end
@@ -225,7 +232,6 @@ if $ARGS[0] = 'store_detail':
 	if $glqs_store = 'scandalicious': $glqs_label = 'Scandalicious'
 	if $glqs_store = 'eroto': $glqs_label = 'Eroto (Sex Shop)'
 	if $glqs_store = 'lusso': $glqs_label = 'Lusso (underwear only)'
-	if $glqs_store = 'misc': $glqs_label = 'Misc'
 	$glqs_sicon = $func('$shop_icon_image', $glqs_store)
 
 	'<center><img src="<<$glqs_sicon>>" height="80"><br><b><font color="maroon"><<$glqs_label>></font></b></center>'
@@ -351,10 +357,6 @@ if $ARGS[0] = 'store_detail':
 		act 'Panties': gt 'mod_GLQS_main', 'item_picker', 'panty', 'lusso', 'lusso', 'Panties'
 		act 'Bodysuits': gt 'mod_GLQS_main', 'item_picker', 'body', 'lusso', 'lusso', 'Bodysuits'
 	end
-	if $glqs_store = 'misc':
-		act 'Misc Items': gt 'mod_GLQS_main', 'item_picker', 'clo', 'misc', 'misc', 'Misc Items'
-	end
-
 	*nl
 	act 'Buy All (this store)': gs 'mod_GLQS_main', 'store_buy', $glqs_store & gt 'mod_GLQS_main', 'store_detail', $glqs_store
 	act 'Return': gt 'mod_GLQS_main', 'store_menu'
@@ -388,6 +390,19 @@ if $ARGS[0] = 'item_picker':
 	glqs_ptotal = total
 	$glqs_picon = $func('$shop_icon_image', $glqs_pkey)
 
+	!! A handful of indices in a few categories (e.g. danilovich_outfits
+	!! 161/162, gm bras 11/16/18) are dead slots the base games own shop
+	!! hides - no real image behind them. Refreshed per type/category
+	!! every render so a stale list from a previous visit here cannot
+	!! leak into a different category.
+	if $glqs_ptype = 'clo': gs 'clothing', 'set_shop_display_exceptions', $glqs_pkey
+	if $glqs_ptype = 'shoe': gs 'shoes', 'set_shop_display_exceptions', $glqs_pkey
+	if $glqs_ptype = 'bra': gs 'bras', 'set_shop_display_exceptions', $glqs_pkey
+	if $glqs_ptype = 'panty': gs 'panties', 'set_shop_display_exceptions', $glqs_pkey
+	if $glqs_ptype = 'body': gs 'underwear_bodysuits', 'set_shop_display_exceptions', $glqs_pkey
+	if $glqs_ptype = 'coat': gs 'coats', 'set_shop_display_exceptions', $glqs_pkey
+	if $glqs_ptype = 'purse': gs 'purses', 'set_shop_display_exceptions', $glqs_pkey
+
 	menu_off = 0
 	usehtml = 1
 	$location_type = 'event'
@@ -402,15 +417,17 @@ if $ARGS[0] = 'item_picker':
 	glqs_i = 1
 	:glqs_item_picker_loop
 	if glqs_i <= glqs_ptotal:
-		if $glqs_ptype = 'clo': $glqs_pimg = $func('$clothing_image', $glqs_pkey, glqs_i)
-		if $glqs_ptype = 'shoe': $glqs_pimg = $func('$shoe_image', $glqs_pkey, glqs_i)
-		if $glqs_ptype = 'bra': $glqs_pimg = $func('$bra_image', $glqs_pkey, glqs_i)
-		if $glqs_ptype = 'panty': $glqs_pimg = $func('$panty_image', $glqs_pkey, glqs_i)
-		if $glqs_ptype = 'body': $glqs_pimg = $func('$bodysuit_image', $glqs_pkey, glqs_i)
-		if $glqs_ptype = 'coat': $glqs_pimg = $func('$coat_image', $glqs_pkey, glqs_i)
-		if $glqs_ptype = 'purse': $glqs_pimg = $func('$purse_image', $glqs_pkey, glqs_i)
+		if arrpos('shop_display_exceptions', glqs_i) < 0:
+			if $glqs_ptype = 'clo': $glqs_pimg = $func('$clothing_image', $glqs_pkey, glqs_i)
+			if $glqs_ptype = 'shoe': $glqs_pimg = $func('$shoe_image', $glqs_pkey, glqs_i)
+			if $glqs_ptype = 'bra': $glqs_pimg = $func('$bra_image', $glqs_pkey, glqs_i)
+			if $glqs_ptype = 'panty': $glqs_pimg = $func('$panty_image', $glqs_pkey, glqs_i)
+			if $glqs_ptype = 'body': $glqs_pimg = $func('$bodysuit_image', $glqs_pkey, glqs_i)
+			if $glqs_ptype = 'coat': $glqs_pimg = $func('$coat_image', $glqs_pkey, glqs_i)
+			if $glqs_ptype = 'purse': $glqs_pimg = $func('$purse_image', $glqs_pkey, glqs_i)
 
-		$glqs_grid += '<div style="flex:0 0 auto;"><a href="exec: gs ''mod_GLQS_main'', ''item_pick'', ''<<$glqs_ptype>>'', ''<<$glqs_pkey>>'', <<glqs_i>> & gs ''stat'' & gt ''mod_GLQS_main'', ''item_picker'', ''<<$glqs_ptype>>'', ''<<$glqs_pkey>>'', ''<<$glqs_pstore>>'', ''<<$glqs_plabel>>''"><img height="220" src="<<$glqs_pimg>>"></a></div>'
+			$glqs_grid += '<div style="flex:0 0 auto;"><a href="exec: gs ''mod_GLQS_main'', ''item_pick'', ''<<$glqs_ptype>>'', ''<<$glqs_pkey>>'', <<glqs_i>> & gs ''stat'' & gt ''mod_GLQS_main'', ''item_picker'', ''<<$glqs_ptype>>'', ''<<$glqs_pkey>>'', ''<<$glqs_pstore>>'', ''<<$glqs_plabel>>''"><img height="220" src="<<$glqs_pimg>>"></a></div>'
+		end
 
 		glqs_i += 1
 		jump 'glqs_item_picker_loop'
@@ -440,32 +457,38 @@ if $ARGS[0] = 'item_pick':
 	if $glqs_ip_type = 'clo':
 		dyneval('<<$glqs_ip_key>>[glqs_ip_idx] = 1')
 		gs 'clothing_attributes', $glqs_ip_key, glqs_ip_idx
-		dyneval('<<$glqs_ip_key>>_h[glqs_ip_idx] = CloMaxStrength')
+		gs 'mod_GLQS_main', 'clo_full_h', $glqs_ip_key
+		dyneval('<<$glqs_ip_key>>_h[glqs_ip_idx] = glqs_h')
 	end
 	if $glqs_ip_type = 'shoe':
 		dyneval('<<$glqs_ip_key>>_shoe[glqs_ip_idx] = 1')
 		gs 'shoe_attributes', $glqs_ip_key, glqs_ip_idx
-		dyneval('<<$glqs_ip_key>>_shoe_h[glqs_ip_idx] = ShoMaxStrength')
+		gs 'mod_GLQS_main', 'sho_full_h'
+		dyneval('<<$glqs_ip_key>>_shoe_h[glqs_ip_idx] = glqs_h')
 	end
 	if $glqs_ip_type = 'bra':
 		dyneval('<<$glqs_ip_key>>_bras[glqs_ip_idx] = 1')
 		gs 'underwear_attributes', $glqs_ip_key + '_bras', glqs_ip_idx
-		dyneval('<<$glqs_ip_key>>_bras_h[glqs_ip_idx] = BraMaxStrength')
+		gs 'mod_GLQS_main', 'bra_full_h'
+		dyneval('<<$glqs_ip_key>>_bras_h[glqs_ip_idx] = glqs_h')
 	end
 	if $glqs_ip_type = 'panty':
 		dyneval('<<$glqs_ip_key>>_panties[glqs_ip_idx] = 1')
 		gs 'underwear_attributes', $glqs_ip_key + '_panties', glqs_ip_idx
-		dyneval('<<$glqs_ip_key>>_panties_h[glqs_ip_idx] = PanMaxStrength')
+		gs 'mod_GLQS_main', 'pan_full_h'
+		dyneval('<<$glqs_ip_key>>_panties_h[glqs_ip_idx] = glqs_h')
 	end
 	if $glqs_ip_type = 'body':
 		dyneval('<<$glqs_ip_key>>_bodysuits[glqs_ip_idx] = 1')
 		gs 'underwear_attributes', $glqs_ip_key + '_bodysuits', glqs_ip_idx
-		dyneval('<<$glqs_ip_key>>_bodysuits_h[glqs_ip_idx] = BraMaxStrength')
+		gs 'mod_GLQS_main', 'body_full_h'
+		dyneval('<<$glqs_ip_key>>_bodysuits_h[glqs_ip_idx] = glqs_h')
 	end
 	if $glqs_ip_type = 'coat':
 		dyneval('<<$glqs_ip_key>>_coats[glqs_ip_idx] = 1')
 		gs 'coat_attributes', $glqs_ip_key, glqs_ip_idx
-		dyneval('<<$glqs_ip_key>>_coats_h[glqs_ip_idx] = CoatMaxStrength')
+		gs 'mod_GLQS_main', 'coat_full_h'
+		dyneval('<<$glqs_ip_key>>_coats_h[glqs_ip_idx] = glqs_h')
 	end
 	if $glqs_ip_type = 'purse':
 		dyneval('<<$glqs_ip_key>>_purses[glqs_ip_idx] = 1')

@@ -1,86 +1,122 @@
 !! FILL HELPERS: per-category item granting loops
 if $ARGS[0] = 'fill_clo':
-	gs 'clothing', 'totals', $ARGS[1]
+	!! set_shop_display_exceptions + the arrpos guard below skip a handful
+	!! of indices the base games own shop hides from every category (e.g.
+	!! danilovich_outfits 161/162, cats_dress 221) - these are dead slots
+	!! with no real image behind them, so granting them anyway showed up
+	!! as blank images in the wardrobe list.
+	$glqs_fc_key = $ARGS[1]
+	gs 'clothing', 'totals', $glqs_fc_key
+	gs 'clothing', 'set_shop_display_exceptions', $glqs_fc_key
 	glqs_i = 1
 	:glqs_clo_loop
 	if glqs_i <= total:
-		dyneval('<<$ARGS[1]>>[glqs_i] = 1')
-		gs 'clothing_attributes', $ARGS[1], glqs_i
-		dyneval('<<$ARGS[1]>>_h[glqs_i] = CloMaxStrength')
+		if arrpos('shop_display_exceptions', glqs_i) < 0:
+			dyneval('<<$glqs_fc_key>>[glqs_i] = 1')
+			gs 'clothing_attributes', $glqs_fc_key, glqs_i
+			gs 'mod_GLQS_main', 'clo_full_h', $glqs_fc_key
+			dyneval('<<$glqs_fc_key>>_h[glqs_i] = glqs_h')
+		end
 		glqs_i += 1
 		jump 'glqs_clo_loop'
 	end
 	killvar 'glqs_i'
+	killvar '$glqs_fc_key'
 end
 
 if $ARGS[0] = 'fill_shoe':
-	gs 'shoes', 'totals', $ARGS[1] + '_shoe'
+	$glqs_fs_key = $ARGS[1]
+	gs 'shoes', 'totals', $glqs_fs_key + '_shoe'
 	glqs_i = 1
 	:glqs_shoe_loop
 	if glqs_i <= total:
-		dyneval('<<$ARGS[1]>>_shoe[glqs_i] = 1')
-		gs 'shoe_attributes', $ARGS[1], glqs_i
-		dyneval('<<$ARGS[1]>>_shoe_h[glqs_i] = ShoMaxStrength')
+		dyneval('<<$glqs_fs_key>>_shoe[glqs_i] = 1')
+		gs 'shoe_attributes', $glqs_fs_key, glqs_i
+		gs 'mod_GLQS_main', 'sho_full_h'
+		dyneval('<<$glqs_fs_key>>_shoe_h[glqs_i] = glqs_h')
 		glqs_i += 1
 		jump 'glqs_shoe_loop'
 	end
 	killvar 'glqs_i'
+	killvar '$glqs_fs_key'
 end
 
 if $ARGS[0] = 'fill_bra':
-	gs 'bras', 'totals', $ARGS[1] + '_bras'
+	!! Same dead-slot skip as fill_clo above - gm bras 11/16/18 have no
+	!! real image behind them on stable.
+	$glqs_fb_key = $ARGS[1]
+	gs 'bras', 'totals', $glqs_fb_key + '_bras'
+	gs 'bras', 'set_shop_display_exceptions', $glqs_fb_key
 	glqs_i = 1
 	:glqs_bra_loop
 	if glqs_i <= total:
-		dyneval('<<$ARGS[1]>>_bras[glqs_i] = 1')
-		gs 'underwear_attributes', $ARGS[1] + '_bras', glqs_i
-		dyneval('<<$ARGS[1]>>_bras_h[glqs_i] = BraMaxStrength')
+		if arrpos('shop_display_exceptions', glqs_i) < 0:
+			dyneval('<<$glqs_fb_key>>_bras[glqs_i] = 1')
+			gs 'underwear_attributes', $glqs_fb_key + '_bras', glqs_i
+			gs 'mod_GLQS_main', 'bra_full_h'
+			dyneval('<<$glqs_fb_key>>_bras_h[glqs_i] = glqs_h')
+		end
 		glqs_i += 1
 		jump 'glqs_bra_loop'
 	end
 	killvar 'glqs_i'
+	killvar '$glqs_fb_key'
 end
 
 if $ARGS[0] = 'fill_panty':
-	gs 'panties', 'totals', $ARGS[1] + '_panties'
+	!! Same dead-slot skip as fill_clo above - gm panties 7/9/21/37 have
+	!! no real image behind them on stable.
+	$glqs_fp_key = $ARGS[1]
+	gs 'panties', 'totals', $glqs_fp_key + '_panties'
+	gs 'panties', 'set_shop_display_exceptions', $glqs_fp_key
 	glqs_i = 1
 	:glqs_panty_loop
 	if glqs_i <= total:
-		dyneval('<<$ARGS[1]>>_panties[glqs_i] = 1')
-		gs 'underwear_attributes', $ARGS[1] + '_panties', glqs_i
-		dyneval('<<$ARGS[1]>>_panties_h[glqs_i] = PanMaxStrength')
+		if arrpos('shop_display_exceptions', glqs_i) < 0:
+			dyneval('<<$glqs_fp_key>>_panties[glqs_i] = 1')
+			gs 'underwear_attributes', $glqs_fp_key + '_panties', glqs_i
+			gs 'mod_GLQS_main', 'pan_full_h'
+			dyneval('<<$glqs_fp_key>>_panties_h[glqs_i] = glqs_h')
+		end
 		glqs_i += 1
 		jump 'glqs_panty_loop'
 	end
 	killvar 'glqs_i'
+	killvar '$glqs_fp_key'
 end
 
 if $ARGS[0] = 'fill_body':
-	gs 'underwear_bodysuits', 'totals', $ARGS[1] + '_bodysuits'
+	$glqs_fbo_key = $ARGS[1]
+	gs 'underwear_bodysuits', 'totals', $glqs_fbo_key + '_bodysuits'
 	glqs_i = 1
 	:glqs_body_loop
 	if glqs_i <= total:
-		dyneval('<<$ARGS[1]>>_bodysuits[glqs_i] = 1')
-		gs 'underwear_attributes', $ARGS[1] + '_bodysuits', glqs_i
-		dyneval('<<$ARGS[1]>>_bodysuits_h[glqs_i] = BraMaxStrength')
+		dyneval('<<$glqs_fbo_key>>_bodysuits[glqs_i] = 1')
+		gs 'underwear_attributes', $glqs_fbo_key + '_bodysuits', glqs_i
+		gs 'mod_GLQS_main', 'body_full_h'
+		dyneval('<<$glqs_fbo_key>>_bodysuits_h[glqs_i] = glqs_h')
 		glqs_i += 1
 		jump 'glqs_body_loop'
 	end
 	killvar 'glqs_i'
+	killvar '$glqs_fbo_key'
 end
 
 if $ARGS[0] = 'fill_coat':
-	gs 'coats', 'totals', $ARGS[1] + '_coats'
+	$glqs_fco_key = $ARGS[1]
+	gs 'coats', 'totals', $glqs_fco_key + '_coats'
 	glqs_i = 1
 	:glqs_coat_loop
 	if glqs_i <= total:
-		dyneval('<<$ARGS[1]>>_coats[glqs_i] = 1')
-		gs 'coat_attributes', $ARGS[1], glqs_i
-		dyneval('<<$ARGS[1]>>_coats_h[glqs_i] = CoatMaxStrength')
+		dyneval('<<$glqs_fco_key>>_coats[glqs_i] = 1')
+		gs 'coat_attributes', $glqs_fco_key, glqs_i
+		gs 'mod_GLQS_main', 'coat_full_h'
+		dyneval('<<$glqs_fco_key>>_coats_h[glqs_i] = glqs_h')
 		glqs_i += 1
 		jump 'glqs_coat_loop'
 	end
 	killvar 'glqs_i'
+	killvar '$glqs_fco_key'
 end
 
 if $ARGS[0] = 'fill_purse':
@@ -93,4 +129,102 @@ if $ARGS[0] = 'fill_purse':
 		jump 'glqs_purse_loop'
 	end
 	killvar 'glqs_i'
+end
+
+if $ARGS[0] = 'clo_full_h':
+	!! Full/max durability for a clo item. Must run immediately after
+	!! gs clothing_attributes, key, index for the same item, since
+	!! it depends on the CloQuality/CloStyle/CloMaxStrength that call
+	!! just set. Nightly computes CloMaxStrength itself inside
+	!! clothing_attributes; Girl Life stable 0.9.8.3 has no such
+	!! variable at all (referencing it there silently reads 0, so every
+	!! clo item this mod grants ended up with 0 durability - shown
+	!! in-wardrobe as worn and not suitable for further wear). Stable
+	!! instead computes durability once, at initial purchase time, from
+	!! a category-name formula inside clothing.qsrcs add_clothing -
+	!! mirrored here as the fallback when CloMaxStrength reads 0.
+	!! $ARGS[1] = category key (e.g. cats_outfits)
+	if CloMaxStrength > 0:
+		glqs_h = CloMaxStrength
+	else
+		glqs_h = 3 * CloQuality
+		if CloStyle = 2: glqs_h += 10
+		if CloStyle = 5: glqs_h += 20
+		if instr(';gm_outfits;gm_dress;gm_office;', ';' + $ARGS[1] + ';') > 0:
+			glqs_h += 70
+		elseif instr($ARGS[1], 'gm') > 0:
+			glqs_h += 120
+		elseif instr($ARGS[1], 'cats') > 0 or instr($ARGS[1], 'flamingos') > 0 or instr($ARGS[1], 'coco') > 0 or instr(';nerdvana_cosplay;nerdvana_outfits;', ';' + $ARGS[1] + ';') > 0:
+			glqs_h += 90
+		elseif instr($ARGS[1], 'moncheri') > 0:
+			glqs_h += 25
+		elseif instr($ARGS[1], 'eroto') > 0 or instr($ARGS[1], 'salacious') > 0 or $ARGS[1] = 'fancy_burlesque':
+			glqs_h += 40
+		elseif $ARGS[1] = 'danilovich_outfits':
+			glqs_h += 100
+		else
+			glqs_h += 60
+		end
+	end
+end
+
+if $ARGS[0] = 'coat_full_h':
+	!! Full/max durability for a coat item. Must run immediately after
+	!! gs coat_attributes, key, index for the same item, since it
+	!! depends on the CoatMaxStrength that call just set. Girl Life
+	!! stable 0.9.8.3 has no such variable and always grants coats at a
+	!! flat 240 durability on purchase (coats.qsrc) - mirrored here as
+	!! the fallback when CoatMaxStrength reads 0.
+	if CoatMaxStrength > 0:
+		glqs_h = CoatMaxStrength
+	else
+		glqs_h = 240
+	end
+end
+
+if $ARGS[0] = 'sho_full_h':
+	!! Full/max durability for a shoe item. Unlike clo/coat, Girl Life
+	!! stable 0.9.8.3 has no durability tracking for shoes at all - no
+	!! _shoe_h array is ever read anywhere in stable, so the nightly-only
+	!! ShoMaxStrength reading 0 there was already harmless (dead data,
+	!! not a visible bug). Made explicit here instead of relying on an
+	!! undefined variable silently defaulting to 0, so this reads the
+	!! same as clo_full_h/coat_full_h rather than looking like a missed
+	!! case.
+	if ShoMaxStrength > 0:
+		glqs_h = ShoMaxStrength
+	else
+		glqs_h = 0
+	end
+end
+
+if $ARGS[0] = 'bra_full_h':
+	!! Same as sho_full_h above, for bras - stable has no _bras_h reads.
+	if BraMaxStrength > 0:
+		glqs_h = BraMaxStrength
+	else
+		glqs_h = 0
+	end
+end
+
+if $ARGS[0] = 'pan_full_h':
+	!! Same as sho_full_h above, for panties - stable has no
+	!! _panties_h reads.
+	if PanMaxStrength > 0:
+		glqs_h = PanMaxStrength
+	else
+		glqs_h = 0
+	end
+end
+
+if $ARGS[0] = 'body_full_h':
+	!! Same as sho_full_h above, for bodysuits - stable has no
+	!! _bodysuits_h reads. Reuses BraMaxStrength, matching fill_bodys
+	!! existing convention that bodysuit durability shares bras
+	!! attribute naming.
+	if BraMaxStrength > 0:
+		glqs_h = BraMaxStrength
+	else
+		glqs_h = 0
+	end
 end

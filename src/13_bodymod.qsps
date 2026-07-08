@@ -113,7 +113,18 @@ if $ARGS[0] = 'tattoo_design_menu':
 	$location_type = 'event'
 	gs 'stat'
 	gs 'themes', 'indoors'
-	total = func('tattoo_management', 'get_total', $glqs_zone)
+	!! Nightly exposes a get_total function (returns via result); Girl Life
+	!! stable 0.9.8.3 has no such name at all - only a totals gosub that
+	!! returns via result directly (unlike clothings totals, which returns
+	!! via the total variable on both builds). Reading total straight from
+	!! the nightly-only get_total function silently read a stale leftover
+	!! value on stable (often 0), so the design grid showed no images at
+	!! all. total = 0 first, then fall back to result only if the totals
+	!! call left total untouched (stable) rather than setting it directly
+	!! (nightly).
+	total = 0
+	gs 'tattoo_management', 'totals', $glqs_zone
+	if total <= 0: total = result
 	'<center><b><font color="maroon">Tattoo Designs: <<$glqs_zone>></font></b></center>'
 	'<br><<total>> designs available. Click an image to apply it.'
 	*nl
@@ -182,7 +193,14 @@ if $ARGS[0] = 'piercing_design_menu':
 	$location_type = 'event'
 	gs 'stat'
 	gs 'themes', 'indoors'
-	total = func('piercing_management', 'get_total', $glqs_slot)
+	!! Same nightly-only get_total name as tattoo_design_menu above - Girl
+	!! Life stable 0.9.8.3 only has a totals gosub that returns via
+	!! result. total = 0 first, then fall back to result only if totals
+	!! left total untouched (stable) rather than setting it directly
+	!! (nightly).
+	total = 0
+	gs 'piercing_management', 'totals', $glqs_slot
+	if total <= 0: total = result
 	'<center><b><font color="maroon">Piercing Jewelry: <<$glqs_slot>></font></b></center>'
 	'<br><<total>> designs available. Click an image to apply it.'
 	*nl

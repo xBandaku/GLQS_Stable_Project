@@ -149,7 +149,7 @@ def lint_version_mismatch(text):
     they agree, else (mod_info_version, changelog_version) as 'X.Y.Z' strings."""
     mod_info_match = re.search(r"\$mod_info\[1\]\s*=\s*'(\d)(\d{2})(\d{2})'", text)
     changelog_match = re.search(
-        r"'<b>Version (\d+)\.(\d+)(?:\.(\d+))?\s*(?:-\s*Current)?</b>'", text
+        r"'<b>Version (\d+)\.(\d+)(?:\.(\d+))?(?:\s*\([^)]*\))?\s*(?:-\s*Current)?</b>'", text
     )
     if not mod_info_match or not changelog_match:
         return None

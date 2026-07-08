@@ -193,3 +193,12 @@ to an existing fragment (if related) or a new `src/NN_description.qsps` file (no
 **New standalone QSP location (rare — only for something outside `mod_GLQS_main`):**
 create `src/NN_name.qsps` with its own full `# location_name` / `--- location_name ---`
 wrapper, and add `"NN_name.qsps"` to `STANDALONE_FILES` in `build.py`.
+
+## Keeping this file accurate
+
+When a bug or wasted cycle traces back to guidance here being wrong, stale, or
+silently contradicted by a later decision elsewhere in the repo (e.g. the
+reference-source priority flip above), fix the guidance in the same session
+and say why — tie it to the concrete incident, not a vague warning. Don't add
+speculative rules for problems that haven't actually happened, and don't
+restate what's already obvious from reading `build.py` or `src/`.

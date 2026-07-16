@@ -1,4 +1,5 @@
 <div align="center">
+
 # GLQS Stable - Girl Life Quick Setup
 
 [![Version](https://img.shields.io/github/v/release/xBandaku/GLQS-Stable?color=%230567ff&label=Latest%20Release&style=for-the-badge)](https://github.com/xBandaku/YACFRTGE/releases/latest)
